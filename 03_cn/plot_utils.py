@@ -1,10 +1,12 @@
 # Plotting
 # ========
+import xarray as xr
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import cartopy as ctp
 import cartopy.crs as ccrs
+
 
 def create_map(ax=None, projection='PlateCarrree',
                central_longitude=0):
@@ -112,5 +114,18 @@ def plot_map(dmap, central_longitude=0, vmin=None, vmax=None,
         cbar = plt.colorbar(im, extend='both', orientation='horizontal',
                             label=label, shrink=shrink, ax=ax, **kwargs)
 
-
     return {'ax': ax, "im": im}
+
+
+def create_map_for_da(da, data, name='var'):
+    if 'time' in da.dims:
+        ds = da.mean(dim='time')
+    else:
+        ds = da
+    xr_ds = xr.DataArray(
+        data=data,
+        dims=ds.dims,
+        coords=ds.coords,
+        name=name,
+    )
+    return xr_ds
