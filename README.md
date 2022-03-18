@@ -1,6 +1,8 @@
 # seminar_ws22
 
-This is the repository for the Block seminar from 21.03.22 - 25.03.22.
+This is the repository for the seminar from 21.03.22 - 25.03.22.
+
+More information about the seminar can be found on our [website](https://machineclimate.de/)
 
 The planned schedule:
 ![fig2](img/schedule.png)
