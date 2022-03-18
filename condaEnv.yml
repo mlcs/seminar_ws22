@@ -1,21 +1,22 @@
-name: climateEnv
+name: seminarEnv
 channels:
   - conda-forge
   - defaults
 dependencies:
   - jupyter
-  - netcdf4
   - python[version='>=3.8']
   - ipython
-  - xarray
-  - numpy=1.20.2
-  - networkit
-  - pot
-  - xlrd
-  - networkx
-  - pip
-  - scipy
-  - cartopy=0.18.0
-  - matplotlib=3.3.4
   - ipywidgets
+  - pip
+  - xarray
+  - netcdf4
+  - numpy
+  - scipy
+  - matplotlib=3.3.4
+  - cartopy
+  - networkit
+  - networkx
   - scikit-learn
+  - pytorch
+  - torchvision
+  - cudatoolkit=11.1
