@@ -759,7 +759,7 @@
 # My changes
 ######################
 
-figure.figsize:     7, 5    # figure size in inches
+figure.figsize:     8, 5    # figure size in inches
 figure.autolayout:  True
 
 savefig.bbox:       tight    # {tight, standard}

@@ -116,3 +116,35 @@ def plot_map(dmap, central_longitude=0, vmin=None, vmax=None,
             cbar.ax.set_xticklabels(normticks[:-1]+1)
 
     return {'ax': ax, "im": im}
+
+
+def plot_2dgaussian(mu, cov, p=0.5, ax=None, **kwargs):
+    """Plot 2d gaussian at p-confidence level.
+
+    Args:
+        mu (np.array): (2) Mean.
+        cov (np.array): (2,2) Covariance matrix.
+        p (float, optional): Confidence. Defaults to 0.95.
+        ax (plt.Axes, optional): Axes. Defaults to None.
+
+    Returns:
+        [type]: [description]
+    """
+    if ax is None:
+        fig, ax = plt.subplots()
+        
+    s = -2 * np.log(1-p) 
+    v, w = np.linalg.eigh(cov*s)
+    u = w[0] / np.linalg.norm(w[0])
+    angle = np.arctan2(u[1], u[0])
+    angle = 180 * angle / np.pi  # convert to degrees
+    v = 2.0 * np.sqrt(2.0) * np.sqrt(v)
+    ell = mpl.patches.Ellipse(
+        mu, v[0], v[1], 180 + angle, **kwargs
+    )
+    
+#    ell.set_clip_box(ax.bbox)
+    ax.add_patch(ell)
+    ax.autoscale_view()
+    
+    return ax
