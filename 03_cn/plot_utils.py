@@ -8,7 +8,7 @@ import cartopy as ctp
 import cartopy.crs as ccrs
 
 
-def create_map(ax=None, projection='EqualEarth',
+def create_map(ax=None, projection='PlateCarree',
                central_longitude=0):
     """Generate cartopy figure for plotting.
 
@@ -51,7 +51,7 @@ def create_map(ax=None, projection='EqualEarth',
 def plot_map(dmap, central_longitude=0, vmin=None, vmax=None,
              ax=None, cmap='RdBu_r',
              bar=True,
-             projection='EqualEarth',
+             projection='PlateCarree',
              label=None,
              plot_type='colormesh',
              **kwargs):
