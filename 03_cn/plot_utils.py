@@ -8,13 +8,13 @@ import cartopy as ctp
 import cartopy.crs as ccrs
 
 
-def create_map(ax=None, projection='PlateCarrree',
+def create_map(ax=None, projection='EqualEarth',
                central_longitude=0):
     """Generate cartopy figure for plotting.
 
     Args:
         ax ([type], optional): [description]. Defaults to None.
-        ctp_projection (str, optional): [description]. Defaults to 'PlateCarrree'.
+        ctp_projection (str, optional): [description]. Defaults to 'EqualEarth'.
         central_longitude (int, optional): [description]. Defaults to 0.
 
     Raises:
@@ -49,8 +49,10 @@ def create_map(ax=None, projection='PlateCarrree',
 
 
 def plot_map(dmap, central_longitude=0, vmin=None, vmax=None,
-             ax=None, cmap='RdBu_r', bar=True,
-             projection='PlateCarree', label=None,
+             ax=None, cmap='RdBu_r',
+             bar=True,
+             projection='EqualEarth',
+             label=None,
              plot_type='colormesh',
              **kwargs):
     """Simple map plotting using xArray.
@@ -129,3 +131,46 @@ def create_map_for_da(da, data, name='var'):
         name=name,
     )
     return xr_ds
+
+
+def plot_edges(
+    cnx,
+    edges,
+    ax=None,
+    central_longitude=0,
+    projection="EqualEarth",
+    plot_points=False,
+    **kwargs,
+):
+
+    ax = create_map(
+        ax=ax, projection=projection,
+        central_longitude=central_longitude
+    )
+
+    lw = kwargs.pop("lw", 1)
+    alpha = kwargs.pop("alpha", 1)
+    c = kwargs.pop("color", "k")
+
+    for i, (u, v) in enumerate(edges):
+        lon_u = cnx.nodes[u]["lon"]
+        lat_u = cnx.nodes[u]["lat"]
+        lon_v = cnx.nodes[v]["lon"]
+        lat_v = cnx.nodes[v]["lat"]
+        if plot_points is True:
+            ax.scatter(
+                [lon_u, lon_v], [lat_u, lat_v], c="k",
+                transform=ccrs.PlateCarree(), s=1
+            )
+
+        ax.plot(
+            [lon_u, lon_v],
+            [lat_u, lat_v],
+            c=c,
+            linewidth=lw,
+            alpha=alpha,
+            transform=ccrs.Geodetic(),
+            zorder=-1,
+        )  # zorder = -1 to always set at the background
+
+    return {"ax": ax, "projection": projection}
