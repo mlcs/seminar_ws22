@@ -12,3 +12,4 @@ __pycache__
 
 04_vae/data/mean_sea_level_pressure_sfc_1979_2021.nc
 04_vae/data/*.ipynb
+04_vae/excercise_vae_slp_solution.ipynb
