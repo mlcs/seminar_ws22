@@ -8,7 +8,7 @@ import cartopy as ctp
 import cartopy.crs as ccrs
 
 
-def create_map(ax=None, projection='EqualEarth',
+def create_map(da=None, ax=None, projection='PlateCarree',
                central_longitude=0):
     """Generate cartopy figure for plotting.
 
@@ -37,21 +37,37 @@ def create_map(ax=None, projection='EqualEarth',
             f'This projection {projection} is not available yet!')
 
     if ax is None:
-        fig, ax = plt.subplots(figsize=(9, 6))
+        fig, ax = plt.subplots(figsize=(10, 5))
         ax = plt.axes(projection=proj)
 
     # axes properties
     ax.coastlines()
-    ax.gridlines(draw_labels=True, dms=True, x_inline=False, y_inline=False)
+    gl = ax.gridlines(draw_labels=True, dms=True, x_inline=False, y_inline=False)
+    gl.left_labels = True
+    gl.right_labels = False
     ax.add_feature(ctp.feature.BORDERS, linestyle=':')
 
+    if da is not None:
+        min_ext_lon = float(np.min(da.coords["lon"]))
+        max_ext_lon = float(np.max(da.coords["lon"]))
+        min_ext_lat = float(np.min(da.coords["lat"]))
+        max_ext_lat = float(np.max(da.coords["lat"]))
+        # print(min_ext_lon, max_ext_lon, min_ext_lat, max_ext_lat)
+        ax.set_extent(
+                [min_ext_lon, max_ext_lon, min_ext_lat, max_ext_lat],
+                crs=ccrs.PlateCarree(central_longitude=central_longitude)
+            )
+    # This is just to avoid a plotting bug in cartopy
+    if projection != 'PlateCarree':
+        ax.set_global()
     return ax
 
 
-def plot_map(dmap, central_longitude=0, vmin=None, vmax=None,
+def plot_map(dmap, central_longitude=0,
+             vmin=None, vmax=None,
              ax=None, cmap='RdBu_r',
              bar=True,
-             projection='EqualEarth',
+             projection='PlateCarree',
              label=None,
              plot_type='colormesh',
              **kwargs):
@@ -76,7 +92,7 @@ def plot_map(dmap, central_longitude=0, vmin=None, vmax=None,
         [type]: [description]
     """
     # create figure
-    ax = create_map(ax=ax, projection=projection,
+    ax = create_map(da=dmap, ax=ax, projection=projection,
                     central_longitude=central_longitude)
 
     # set colormap
@@ -110,11 +126,11 @@ def plot_map(dmap, central_longitude=0, vmin=None, vmax=None,
         )
 
     # set colorbar
-    shrink = kwargs.pop('shrink', 0.8)
+    orientation = kwargs.pop('orientation', 'vertical')
     if bar:
         label = dmap.name if label is None else label
-        cbar = plt.colorbar(im, extend='both', orientation='horizontal',
-                            label=label, shrink=shrink, ax=ax, **kwargs)
+        cbar = plt.colorbar(im, extend='both', orientation=orientation,
+                            label=label, ax=ax, **kwargs)
 
     return {'ax': ax, "im": im}
 

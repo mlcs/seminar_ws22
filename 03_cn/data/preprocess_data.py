@@ -1,9 +1,11 @@
 # %%
+import climnet.utils.spatial_utils as sput
 import climnet.utils.general_utils as gut
 import climnet.utils.time_utils as tu
 from climnet.dataset import BaseRectDataset
 import os
 import xarray as xr
+import numpy as np
 from importlib import reload
 
 grid_step = 2.5
@@ -47,3 +49,29 @@ dataset_file_monmean = output_dir + \
 
 gut.save_ds(ds=ds_monmean,
             filepath=dataset_file_monmean)
+
+
+# %%
+# MSWEP single pressure level precipitation
+
+var_name = 'pr'
+name = 'mswep'
+grid_step = 1
+dataset_file = output_dir + \
+    f"/{output_folder}/{name}_{var_name}_{grid_step}_ds.nc"
+
+
+ds = BaseRectDataset(load_nc=dataset_file)
+# %%
+lon_range_c = [65, 95]
+lat_range_c = [7, 37]
+ds_pr_cut = sput.cut_map(ds.ds['pr'], lon_range=lon_range_c,
+                         lat_range=lat_range_c)
+ds_pr_cut = tu.get_month_range_data(ds_pr_cut,
+                                    start_month='Jun',
+                                    end_month='Sep')
+dataset_file_india = output_dir + \
+    f"/{output_folder}/{name}_{var_name}_{grid_step}_india_jjas_ds.nc"
+
+gut.save_ds(ds=ds_pr_cut,
+            filepath=dataset_file_india)
