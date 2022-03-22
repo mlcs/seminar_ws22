@@ -17,5 +17,5 @@ conda env create -f condaEnv.yml
 ```
 2. Activate environment:
 ```
-conda activate climateEnv
+conda activate seminarEnv
 ```
