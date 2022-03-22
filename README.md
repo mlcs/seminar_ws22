@@ -2,7 +2,7 @@
 
 This is the repository for the seminar from 21.03.22 - 25.03.22.
 
-More information about the seminar can be found on our [website](https://machineclimate.de/)
+More information about the seminar can be found on our [website](https://machineclimate.de/teaching/winter2021-22-ml1/)
 
 The planned schedule:
 ![fig2](img/schedule.png)
@@ -19,3 +19,5 @@ conda env create -f condaEnv.yml
 ```
 conda activate seminarEnv
 ```
+
+*Note: If you don't have a grafic card you can comment the line including cudatoolkit in the condaenv.yml file* 
