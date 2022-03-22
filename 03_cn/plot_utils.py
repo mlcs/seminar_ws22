@@ -39,27 +39,26 @@ def create_map(da=None, ax=None, projection='PlateCarree',
     if ax is None:
         fig, ax = plt.subplots(figsize=(10, 5))
         ax = plt.axes(projection=proj)
+        # axes properties
+        ax.coastlines()
+        gl = ax.gridlines(draw_labels=True, dms=True, x_inline=False, y_inline=False)
+        gl.left_labels = True
+        gl.right_labels = False
+        ax.add_feature(ctp.feature.BORDERS, linestyle=':')
 
-    # axes properties
-    ax.coastlines()
-    gl = ax.gridlines(draw_labels=True, dms=True, x_inline=False, y_inline=False)
-    gl.left_labels = True
-    gl.right_labels = False
-    ax.add_feature(ctp.feature.BORDERS, linestyle=':')
-
-    if da is not None:
-        min_ext_lon = float(np.min(da.coords["lon"]))
-        max_ext_lon = float(np.max(da.coords["lon"]))
-        min_ext_lat = float(np.min(da.coords["lat"]))
-        max_ext_lat = float(np.max(da.coords["lat"]))
-        # print(min_ext_lon, max_ext_lon, min_ext_lat, max_ext_lat)
-        ax.set_extent(
-                [min_ext_lon, max_ext_lon, min_ext_lat, max_ext_lat],
-                crs=ccrs.PlateCarree(central_longitude=central_longitude)
-            )
-    # This is just to avoid a plotting bug in cartopy
-    if projection != 'PlateCarree':
-        ax.set_global()
+        if da is not None:
+            min_ext_lon = float(np.min(da.coords["lon"]))
+            max_ext_lon = float(np.max(da.coords["lon"]))
+            min_ext_lat = float(np.min(da.coords["lat"]))
+            max_ext_lat = float(np.max(da.coords["lat"]))
+            # print(min_ext_lon, max_ext_lon, min_ext_lat, max_ext_lat)
+            ax.set_extent(
+                    [min_ext_lon, max_ext_lon, min_ext_lat, max_ext_lat],
+                    crs=ccrs.PlateCarree(central_longitude=central_longitude)
+                )
+        # This is just to avoid a plotting bug in cartopy
+        if projection != 'PlateCarree':
+            ax.set_global()
     return ax
 
 
@@ -154,7 +153,7 @@ def plot_edges(
     edges,
     ax=None,
     central_longitude=0,
-    projection="EqualEarth",
+    projection="PlateCarree",
     plot_points=False,
     **kwargs,
 ):
