@@ -20,4 +20,4 @@ conda env create -f condaEnv.yml
 conda activate seminarEnv
 ```
 
-*Note: If you don't have a grafic card you can comment the line including cudatoolkit in the condaenv.yml file* 
+*Note: If you don't have a Nvidia grafic card you can comment the line including cudatoolkit in the condaenv.yml file* 
