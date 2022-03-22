@@ -1,5 +1,6 @@
 # Plotting
 # ========
+from scipy.cluster.hierarchy import dendrogram
 import xarray as xr
 import numpy as np
 import matplotlib as mpl
@@ -41,7 +42,8 @@ def create_map(da=None, ax=None, projection='PlateCarree',
         ax = plt.axes(projection=proj)
         # axes properties
         ax.coastlines()
-        gl = ax.gridlines(draw_labels=True, dms=True, x_inline=False, y_inline=False)
+        gl = ax.gridlines(draw_labels=True, dms=True,
+                          x_inline=False, y_inline=False)
         gl.left_labels = True
         gl.right_labels = False
         ax.add_feature(ctp.feature.BORDERS, linestyle=':')
@@ -53,9 +55,9 @@ def create_map(da=None, ax=None, projection='PlateCarree',
             max_ext_lat = float(np.max(da.coords["lat"]))
             # print(min_ext_lon, max_ext_lon, min_ext_lat, max_ext_lat)
             ax.set_extent(
-                    [min_ext_lon, max_ext_lon, min_ext_lat, max_ext_lat],
-                    crs=ccrs.PlateCarree(central_longitude=central_longitude)
-                )
+                [min_ext_lon, max_ext_lon, min_ext_lat, max_ext_lat],
+                crs=ccrs.PlateCarree(central_longitude=central_longitude)
+            )
         # This is just to avoid a plotting bug in cartopy
         if projection != 'PlateCarree':
             ax.set_global()
@@ -189,3 +191,26 @@ def plot_edges(
         )  # zorder = -1 to always set at the background
 
     return {"ax": ax, "projection": projection}
+
+
+def plot_dendrogram(model, **kwargs):
+    # Adapted from https://scikit-learn.org/stable/auto_examples/cluster/plot_agglomerative_dendrogram.html#sphx-glr-auto-examples-cluster-plot-agglomerative-dendrogram-py
+    # Create linkage matrix and then plot the dendrogram
+    # create the counts of samples under each node
+    counts = np.zeros(model.children_.shape[0])
+    n_samples = len(model.labels_)
+    for i, merge in enumerate(model.children_):
+        current_count = 0
+        for child_idx in merge:
+            if child_idx < n_samples:
+                current_count += 1  # leaf node
+            else:
+                current_count += counts[child_idx - n_samples]
+        counts[i] = current_count
+
+    linkage_matrix = np.column_stack(
+        [model.children_, model.distances_, counts]
+    ).astype(float)
+
+    # Plot the corresponding dendrogram
+    dendrogram(linkage_matrix, **kwargs)
