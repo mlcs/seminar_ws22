@@ -1,5 +1,6 @@
 # Plotting
 # ========
+from scipy.cluster.hierarchy import dendrogram
 import xarray as xr
 import numpy as np
 import matplotlib as mpl
@@ -41,7 +42,8 @@ def create_map(da=None, ax=None, projection='PlateCarree',
         ax = plt.axes(projection=proj)
         # axes properties
         ax.coastlines()
-        gl = ax.gridlines(draw_labels=True, dms=True, x_inline=False, y_inline=False)
+        gl = ax.gridlines(draw_labels=True, dms=True,
+                          x_inline=False, y_inline=False)
         gl.left_labels = True
         gl.right_labels = False
         ax.add_feature(ctp.feature.BORDERS, linestyle=':')
@@ -53,9 +55,9 @@ def create_map(da=None, ax=None, projection='PlateCarree',
             max_ext_lat = float(np.max(da.coords["lat"]))
             # print(min_ext_lon, max_ext_lon, min_ext_lat, max_ext_lat)
             ax.set_extent(
-                    [min_ext_lon, max_ext_lon, min_ext_lat, max_ext_lat],
-                    crs=ccrs.PlateCarree(central_longitude=central_longitude)
-                )
+                [min_ext_lon, max_ext_lon, min_ext_lat, max_ext_lat],
+                crs=ccrs.PlateCarree(central_longitude=central_longitude)
+            )
         # This is just to avoid a plotting bug in cartopy
         if projection != 'PlateCarree':
             ax.set_global()
@@ -189,3 +191,84 @@ def plot_edges(
         )  # zorder = -1 to always set at the background
 
     return {"ax": ax, "projection": projection}
+
+
+def plot_dendrogram(model, **kwargs):
+    # Adapted from https://scikit-learn.org/stable/auto_examples/cluster/plot_agglomerative_dendrogram.html#sphx-glr-auto-examples-cluster-plot-agglomerative-dendrogram-py
+    # Create linkage matrix and then plot the dendrogram
+    # create the counts of samples under each node
+    counts = np.zeros(model.children_.shape[0])
+    n_samples = len(model.labels_)
+    for i, merge in enumerate(model.children_):
+        current_count = 0
+        for child_idx in merge:
+            if child_idx < n_samples:
+                current_count += 1  # leaf node
+            else:
+                current_count += counts[child_idx - n_samples]
+        counts[i] = current_count
+
+    linkage_matrix = np.column_stack(
+        [model.children_, model.distances_, counts]
+    ).astype(float)
+
+    # Plot the corresponding dendrogram
+    dendrogram(linkage_matrix, **kwargs)
+
+
+def fancy_dendrogram(*args, **kwargs):
+    """
+    Inspired from
+    https://joernhees.de/blog/2015/08/26/scipy-hierarchical-clustering-and-dendrogram-tutorial/
+
+    Returns
+    -------
+    Dendogramm data as scipy dataset.
+
+    """
+    from matplotlib import ticker
+
+    fig, ax = plt.subplots(figsize=(9, 9))
+    model = kwargs.pop('model', None)
+    counts = np.zeros(model.children_.shape[0])
+    n_samples = len(model.labels_)
+    for i, merge in enumerate(model.children_):
+        current_count = 0
+        for child_idx in merge:
+            if child_idx < n_samples:
+                current_count += 1  # leaf node
+            else:
+                current_count += counts[child_idx - n_samples]
+        counts[i] = current_count
+    linkage_matrix = np.column_stack(
+        [model.children_, model.distances_, counts]
+    ).astype(float)
+
+    max_d = kwargs.pop('max_d', None)
+    if max_d and 'color_threshold' not in kwargs:
+        kwargs['color_threshold'] = max_d
+    annotate_above = kwargs.pop('annotate_above', 0)
+    lw = kwargs.pop('lw', None)
+    if lw is None:
+        lw = 1
+    with plt.rc_context({'lines.linewidth': lw}):
+        ddata = dendrogram(linkage_matrix,
+                           *args, **kwargs)
+    if not kwargs.get('no_plot', False):
+
+        ax.set_xlabel('sample index (cluster size) ')
+        ax.set_ylabel('Cluster Level')
+        for i, d, c in zip(ddata['icoord'], ddata['dcoord'], ddata['color_list']):
+            x = 0.5 * sum(i[1:3])
+            y = d[1]
+            if y > annotate_above:
+                ax.plot(x, y, 'o', c=c)
+                ax.annotate("%.3g" % y, (x, y), xytext=(0, -5),
+                            textcoords='offset points',
+                            va='top', ha='center')
+        if max_d:
+            ax.axhline(y=max_d, c='k', lw=4, ls='--')
+    for axis in [ax.yaxis]:
+        axis.set_major_locator(ticker.MaxNLocator(integer=True))
+
+    return ddata
