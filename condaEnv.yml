@@ -2,6 +2,7 @@ name: seminarEnv
 channels:
   - conda-forge
   - defaults
+  - pytorch
 dependencies:
   - jupyter
   - python[version='>=3.8']
@@ -19,4 +20,3 @@ dependencies:
   - scikit-learn
   - pytorch
   - torchvision
-  - cudatoolkit=11.1
